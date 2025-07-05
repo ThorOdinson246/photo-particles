@@ -7,6 +7,7 @@ A standalone JavaScript script that transforms a designated image on your webpag
 - **Configurable**: Easily customize the look and feel through an options object.
 - **Plug and Play**: Automatically finds and replaces the target image.
 - **Interactive**: Particles scatter when you click and drag your mouse over them.
+
 - **Responsive**: Adjusts the particle canvas and layout for both desktop and mobile views.
 - **Physics-Based Animation**: Particles have properties like friction, springiness, and gentle orbital motion, creating a dynamic and organic feel.
 
@@ -50,6 +51,9 @@ This script is designed to be easy to drop into an existing project.
         });
     </script>
     ```
+## Demo
+
+![Demo](demo.gif)
 
 ## Configuration Options
 
