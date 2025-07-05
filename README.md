@@ -51,6 +51,58 @@ This script is designed to be easy to drop into an existing project.
         });
     </script>
     ```
+
+4.  **Toggle Controls**
+
+    The script provides built-in toggle functionality with multiple configuration options.
+
+    ### Basic Toggle Setup
+
+    ```html
+    <!-- Simple checkbox toggle -->
+    <input type="checkbox" id="particleToggle" checked>
+    <label for="particleToggle">Enable Particles</label>
+    ```
+
+    ### Advanced Toggle with Custom Styling
+
+    ```html
+    <div class="controls">
+        <label for="particleToggle" class="toggle-label">Particles</label>
+        <input type="checkbox" id="particleToggle" checked>
+        <div class="toggle-switch active" id="toggleSwitch"></div>
+        <a href="#" class="info-button" id="particleInfoLink">i</a>
+    </div>
+    ```
+
+    ### Toggle Configuration Options
+
+    **Show Toggle (Default)**
+    ```javascript
+    const photoController = new PhotoParticleController({
+        imageSrc: 'path/to/your/image.jpg',
+        showToggle: true  // Default: shows all toggle elements
+    });
+    ```
+
+    **Hide Toggle Completely**
+    ```javascript
+    const photoController = new PhotoParticleController({
+        imageSrc: 'path/to/your/image.jpg',
+        showToggle: false  // Hides all toggle elements and labels
+    });
+    ```
+
+    ### Automatic Element Detection
+
+    When `showToggle: true`, the library automatically detects and manages:
+    - `#particleToggle` - Main toggle checkbox
+    - `#toggleSwitch` - Visual toggle switch element
+    - `#particleInfoLink` - Info/GitHub link button
+    - `.toggle-label` - Toggle label text
+    - `label[for="particleToggle"]` - Associated label elements
+
+    When `showToggle: false`, all these elements are automatically hidden.
 ## Demo
 
 ![Demo](demo.gif)
@@ -58,6 +110,78 @@ This script is designed to be easy to drop into an existing project.
 ## Configuration Options
 
 You can pass an options object to the `PhotoParticleController` to customize the effect.
+
+### Built-in Toggle System
+
+The library includes a comprehensive toggle system that automatically:
+
+- **Detects HTML elements** with specific IDs
+- **Binds event listeners** for toggle functionality  
+- **Manages visual states** for custom toggle switches
+- **Handles GitHub link** integration automatically
+- **Provides complete control** over visibility via `showToggle` option
+
+#### Toggle Elements
+
+| Element ID | Purpose | Auto-detected | Description |
+|------------|---------|---------------|-------------|
+| `particleToggle` | Main checkbox | ✅ | Primary toggle control |
+| `toggleSwitch` | Visual toggle | ✅ | Custom styled toggle switch |
+| `particleInfoLink` | Info button | ✅ | Links to GitHub repository |
+| `.toggle-label` | Label text | ✅ | Text labels for toggle |
+
+#### Toggle Behavior
+
+- **Automatic binding**: No JavaScript code required
+- **Visual feedback**: Custom toggle switches update automatically
+- **State management**: Particle effect enabled/disabled based on checkbox
+- **Smart hiding**: All related elements hidden when `showToggle: false`
+
+#### CSS Customization
+
+Toggle elements are fully customizable with CSS. Target these selectors:
+
+```css
+/* Toggle checkbox (usually hidden) */
+#particleToggle { }
+
+/* Toggle switch visual element */
+#toggleSwitch {
+    /* Custom toggle switch styling */
+    background: your-color;
+    border-radius: your-radius;
+}
+
+#toggleSwitch.active {
+    /* Active state styling */
+    background: your-active-color;
+}
+
+/* Toggle labels */
+.toggle-label,
+label[for="particleToggle"] {
+    /* Label text styling */
+    color: your-text-color;
+    font-size: your-size;
+}
+
+/* Info button */
+#particleInfoLink {
+    /* Info button styling */
+    background: your-button-color;
+}
+
+/* Controls container */
+.controls {
+    /* Container styling */
+    background: your-background;
+    padding: your-padding;
+}
+```
+
+The library only manages functionality - all visual styling is controlled by your CSS.
+
+### Options Table
 
 | Option                 | Type     | Default                         | Description                                                                 |
 | ---------------------- | -------- | ------------------------------- | --------------------------------------------------------------------------- |
@@ -68,6 +192,7 @@ You can pass an options object to the `PhotoParticleController` to customize the
 | `particleSamplingStep` | Number   | `2`                             | The spacing between particles. A higher number means fewer, less dense particles. |
 | `particleBaseRadius`   | Number   | `1.8`                           | The base size of each particle. Size also varies slightly by brightness.    |
 | `particleColor`        | Function | `(r,g,b) => ...`                | A function that returns a CSS color string. Receives `r`, `g`, `b` values.  |
+| `showToggle`           | Boolean  | `true`                          | Whether to show the toggle controls. Set to `false` to hide all toggle elements. |
 
 
 ## Notes

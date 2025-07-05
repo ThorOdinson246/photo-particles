@@ -122,6 +122,7 @@ class PhotoParticleController {
             particleSamplingStep: 2, // Lower is denser
             particleBaseRadius: 1.8,
             particleColor: (r, g, b) => `rgba(${r}, ${g}, ${b}, 0.95)`,
+            showToggle: true, // Show toggle controls by default
             // Add any other physics properties from PhotoParticle here if needed
         };
 
@@ -160,71 +161,35 @@ class PhotoParticleController {
     async init() {
         this.originalImage = this.imageContainer.querySelector('img');
         
-        // Create canvas that covers a larger rectangular area around the image
+        // Create canvas that exactly matches the image position and size
         this.canvas = document.createElement('canvas');
         this.canvas.style.position = 'absolute';
         this.canvas.style.pointerEvents = 'all';
-        // Lower z-index on mobile to ensure toggle button works
-        this.canvas.style.zIndex = window.innerWidth <= 900 ? '1' : '2';
         this.canvas.style.cursor = 'grab';
+        this.canvas.style.borderRadius = '50%'; // Match the circular image
         
-        // Find the featured-image container to position canvas there
-        const featuredImageDiv = document.querySelector('.featured-image');
-        if (!featuredImageDiv) return;
-        
-        // Make featured-image position relative and append canvas there
-        featuredImageDiv.style.position = 'relative';
-        featuredImageDiv.appendChild(this.canvas);
+        // Position canvas to exactly overlay the image
+        this.imageContainer.style.position = 'relative';
+        this.imageContainer.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         
-        // Set canvas to cover the entire featured-image area with responsive expansion
-        const rect = featuredImageDiv.getBoundingClientRect();
+        // Get image dimensions and position
+        const imageRect = this.originalImage.getBoundingClientRect();
+        const containerRect = this.imageContainer.getBoundingClientRect();
         
-        // Check if we're in mobile column layout
-        const isMobile = window.innerWidth <= 900; // Match CSS breakpoint
-        const isVerySmall = window.innerWidth <= 400;
+        // Set canvas size to exactly match the image
+        const imageWidth = this.originalImage.offsetWidth;
+        const imageHeight = this.originalImage.offsetHeight;
         
-        let expandedWidth, expandedHeight;
+        this.canvas.width = imageWidth;
+        this.canvas.height = imageHeight;
+        this.canvas.style.width = imageWidth + 'px';
+        this.canvas.style.height = imageHeight + 'px';
         
-        if (isMobile) {
-            // In mobile column layout, extend canvas dramatically
-            // Horizontal: Full screen width for maximum particle movement
-            // Vertical: Use more of viewport height to let particles move behind nav and below image
-            expandedWidth = window.innerWidth; // Full screen width
-            expandedHeight = window.innerHeight * 0.9; // 90% of viewport height for more vertical space
-        } else {
-            // Desktop row layout - extend more for better particle movement
-            expandedWidth = rect.width * 1.5; // 50% expansion horizontal
-            expandedHeight = window.innerHeight * 0.7; // 70% of viewport height for more vertical movement
-        }
-        
-        this.canvas.width = expandedWidth;
-        this.canvas.height = expandedHeight;
-        this.canvas.style.width = expandedWidth + 'px';  
-        this.canvas.style.height = expandedHeight + 'px';
-        
-        // Position canvas to allow particles to move behind elements
-        if (isMobile) {
-            // Center horizontally on full screen width, position to allow movement behind nav and text
-            const offsetX = (expandedWidth - rect.width) / -2;
-            const offsetY = -window.innerHeight * 0.15; // Move canvas up to allow particles behind nav
-            this.canvas.style.top = offsetY + 'px';
-            this.canvas.style.left = offsetX + 'px';
-            
-            // On mobile, reduce canvas height to avoid covering the toggle button
-            const toggleSpace = 100; // Space for toggle button
-            this.canvas.height = Math.max(expandedHeight - toggleSpace, rect.height);
-            this.canvas.style.height = this.canvas.height + 'px';
-        } else {
-            // Desktop - center the expanded canvas within the featured-image area
-            const offsetX = (expandedWidth - rect.width) / -2;
-            const offsetY = -window.innerHeight * 0.1; // Move up more for vertical particle movement
-            this.canvas.style.top = offsetY + 'px';
-            this.canvas.style.left = offsetX + 'px';
-        }
-        
-        // Set lower z-index so particles go behind other elements but remain interactive
-        this.canvas.style.zIndex = '2'; // Above image but below UI elements
+        // Position canvas to exactly overlay the image
+        this.canvas.style.top = '0px';
+        this.canvas.style.left = '0px';
+        this.canvas.style.zIndex = '2';
         
         try {
             await this.extractImageColors();
@@ -247,52 +212,15 @@ class PhotoParticleController {
     }
     
     handleResize() {
-        const featuredImageDiv = document.querySelector('.featured-image');
-        if (featuredImageDiv && this.canvas) {
-            const rect = featuredImageDiv.getBoundingClientRect();
+        if (this.canvas && this.originalImage) {
+            // Update canvas size to match image
+            const imageWidth = this.originalImage.offsetWidth;
+            const imageHeight = this.originalImage.offsetHeight;
             
-            // Check if we're in mobile column layout
-            const isMobile = window.innerWidth <= 900; // Match CSS breakpoint
-            
-            let expandedWidth, expandedHeight;
-            
-            if (isMobile) {
-                // In mobile column layout, extend canvas dramatically
-                expandedWidth = window.innerWidth; // Full screen width
-                expandedHeight = window.innerHeight * 0.9; // 90% of viewport height
-            } else {
-                // Desktop row layout - extend more for better particle movement
-                expandedWidth = rect.width * 1.5; // 50% expansion horizontal
-                expandedHeight = window.innerHeight * 0.7; // 70% of viewport height
-            }
-            
-            this.canvas.width = expandedWidth;
-            this.canvas.height = expandedHeight;
-            this.canvas.style.width = expandedWidth + 'px';
-            this.canvas.style.height = expandedHeight + 'px';
-            
-            // Position canvas appropriately
-            if (isMobile) {
-                // Center horizontally on full screen width, position to allow movement behind nav and text
-                const offsetX = (expandedWidth - rect.width) / -2;
-                const offsetY = -window.innerHeight * 0.15; // Move canvas up to allow particles behind nav
-                this.canvas.style.top = offsetY + 'px';
-                this.canvas.style.left = offsetX + 'px';
-                
-                // On mobile, reduce canvas height to avoid covering the toggle button
-                const toggleSpace = 100; // Space for toggle button
-                this.canvas.height = Math.max(expandedHeight - toggleSpace, rect.height);
-                this.canvas.style.height = this.canvas.height + 'px';
-            } else {
-                // Desktop - center the expanded canvas with more vertical movement
-                const offsetX = (expandedWidth - rect.width) / -2;
-                const offsetY = -window.innerHeight * 0.1; // Move up more for vertical particle movement
-                this.canvas.style.top = offsetY + 'px';
-                this.canvas.style.left = offsetX + 'px';
-            }
-            
-            // Update z-index based on screen size to ensure toggle button works on mobile
-            this.canvas.style.zIndex = window.innerWidth <= 900 ? '1' : '2';
+            this.canvas.width = imageWidth;
+            this.canvas.height = imageHeight;
+            this.canvas.style.width = imageWidth + 'px';
+            this.canvas.style.height = imageHeight + 'px';
             
             // Recreate particles with new dimensions
             this.createParticles();
@@ -333,20 +261,16 @@ class PhotoParticleController {
         const data = this.imageData.data;
         const imageSize = 120;
         
-        // Get the actual image position within the larger canvas area
-        const imageRect = this.originalImage.getBoundingClientRect();
-        const canvasRect = this.canvas.getBoundingClientRect();
+        // Canvas now exactly matches image dimensions
+        const canvasWidth = this.canvas.width;
+        const canvasHeight = this.canvas.height;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        const imageRadius = Math.min(canvasWidth, canvasHeight) / 2;
         
-        // Calculate image center relative to the larger canvas
-        const centerX = imageRect.left - canvasRect.left + imageRect.width / 2;
-        const centerY = imageRect.top - canvasRect.top + imageRect.height / 2;
-        
-        // Image radius based on actual image size
-        const imageRadius = Math.min(imageRect.width, imageRect.height) / 2;
-        
-        // Optimized particle count for performance - fewer particles but closer together
-        const SAMPLING_STEP = this.options.particleSamplingStep; // Sample every 2nd pixel for better performance and quality balance
-        const PARTICLE_RETENTION = 1.0; // Keep all valid particles for best image quality
+        // Optimized particle count for performance
+        const SAMPLING_STEP = this.options.particleSamplingStep;
+        const PARTICLE_RETENTION = 1.0;
         
         for (let y = 0; y < imageSize; y += SAMPLING_STEP) {
             for (let x = 0; x < imageSize; x += SAMPLING_STEP) {
@@ -370,23 +294,19 @@ class PhotoParticleController {
                 // Random retention for particle density control
                 if (Math.random() > PARTICLE_RETENTION) continue;
                 
-                // Calculate world position - align perfectly with original image
+                // Calculate world position - perfectly aligned with image
                 const worldX = centerX + relativeX * imageRadius;
                 const worldY = centerY + relativeY * imageRadius;
                 
-                // Larger particles that are closer together for better image illusion
+                // Particle size based on brightness
                 const brightness = (r + g + b) / 3;
-                const baseRadius = this.options.particleBaseRadius + (brightness / 255) * 2.2; // Larger base size
-                const radius = baseRadius * 0.85; // Slightly smaller but not too small
+                const baseRadius = this.options.particleBaseRadius + (brightness / 255) * 2.2;
+                const radius = baseRadius * 0.85;
                 const color = this.options.particleColor(r, g, b);
                 
-                // No random offset - keep particles in precise positions for better image quality
-                const offsetX = 0;
-                const offsetY = 0;
-                
                 const particle = new PhotoParticle(
-                    worldX + offsetX, 
-                    worldY + offsetY, 
+                    worldX, 
+                    worldY, 
                     radius, 
                     color, 
                     worldX, 
@@ -449,20 +369,76 @@ class PhotoParticleController {
     }
     
     setupToggleControls() {
+        // Only set up toggle controls if showToggle is enabled
+        if (!this.options.showToggle) {
+            // Hide toggle elements if they exist
+            const toggle = document.getElementById('particleToggle');
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            const infoLink = document.getElementById('particleInfoLink');
+            
+            // Also hide labels/text elements
+            const toggleLabels = document.querySelectorAll('.toggle-label, label[for="particleToggle"]');
+            
+            if (toggle) toggle.style.display = 'none';
+            if (toggleSwitch) toggleSwitch.style.display = 'none';
+            if (infoLink) infoLink.style.display = 'none';
+            
+            // Hide all toggle-related labels
+            toggleLabels.forEach(label => {
+                label.style.display = 'none';
+            });
+            
+            // Hide the entire controls container if it only contains toggle elements
+            const controls = document.querySelector('.controls');
+            if (controls) {
+                const visibleChildren = Array.from(controls.children).filter(child => {
+                    const computedStyle = window.getComputedStyle(child);
+                    return computedStyle.display !== 'none' && 
+                           !['particleToggle', 'toggleSwitch', 'particleInfoLink'].includes(child.id) &&
+                           !child.classList.contains('toggle-label') &&
+                           !(child.tagName === 'LABEL' && child.getAttribute('for') === 'particleToggle');
+                });
+                if (visibleChildren.length === 0) {
+                    controls.style.display = 'none';
+                }
+            }
+            return;
+        }
+        
         const toggle = document.getElementById('particleToggle');
         const infoLink = document.getElementById('particleInfoLink');
         
         if (toggle) {
+            // Enhanced toggle functionality with visual feedback
             toggle.addEventListener('change', (e) => {
                 this.particlesEnabled = e.target.checked;
                 this.toggleParticles();
+                
+                // Look for custom toggle switch visual element
+                const toggleSwitch = document.getElementById('toggleSwitch');
+                if (toggleSwitch) {
+                    if (e.target.checked) {
+                        toggleSwitch.classList.add('active');
+                    } else {
+                        toggleSwitch.classList.remove('active');
+                    }
+                }
             });
+            
+            // If there's a visual toggle switch, make it clickable
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            if (toggleSwitch) {
+                toggleSwitch.addEventListener('click', () => {
+                    toggle.checked = !toggle.checked;
+                    toggle.dispatchEvent(new Event('change'));
+                });
+            }
         }
         
-        // Set the GitHub link (you can update this URL when you create the repo)
+        // Set the GitHub link
         if (infoLink) {
-            infoLink.href = 'https://github.com/yourusername/photo-particle-system'; // Update this URL
-            infoLink.setAttribute('data-tooltip', 'Here\'s how I did this');
+            infoLink.href = 'https://github.com/ThorOdinson246/photo-particles';
+            infoLink.setAttribute('data-tooltip', 'View source code');
         }
     }
     

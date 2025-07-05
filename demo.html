@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Particles Demo</title>
+    <style>
+
+        body {
+            background: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .demo-container {
+            position: relative;
+        }
+
+        .featured-image {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-particles-image {
+            position: relative;
+        }
+
+        .photo-particles-image img {
+            width: 400px; 
+            height: 400px; 
+            object-fit: cover;
+            border-radius: 50%;
+            transition: opacity 0.5s ease;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        /* Toggle switch styling */
+        #particleToggle {
+            display: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active {
+            background: #2196f3;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch.active::before {
+            transform: translateX(24px);
+        }
+
+        .info-button {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid rgba(33, 150, 243, 0.4);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64b5f6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="featured-image">
+            <div class="photo-particles-image">
+                <img src="demo.png" alt="Demo Image">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <label for="particleToggle" class="toggle-label">Particles</label>
+            <input type="checkbox" id="particleToggle" checked>
+            <div class="toggle-switch active" id="toggleSwitch"></div>
+            <a href="#" class="info-button" id="particleInfoLink">i</a>
+        </div>
+    </div>
+
+    <script src="photo-particles.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the particle controller with built-in toggle support
+            const photoController = new PhotoParticleController({
+                containerSelector: '.photo-particles-image',
+                imageSrc: 'demo.png',
+                showToggle: true  // Set to false to hide toggle controls
+            });
+            
+            // All toggle functionality is now built into the library!
+            // To disable toggle: set showToggle: false in options above
+        });
+    </script>
+</body>
+</html>
