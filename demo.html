@@ -133,11 +133,11 @@
         </div>
     </div>
 
-    <script src="photo-particles.js"></script>
+    <script src="dist/photo-particles.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize the particle controller with built-in toggle support
-            const photoController = new PhotoParticleController({
+            const photoController = new PhotoParticles.PhotoParticleController({
                 containerSelector: '.photo-particles-image',
                 imageSrc: 'demo.png',
                 showToggle: true  // Set to false to hide toggle controls

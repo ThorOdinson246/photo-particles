@@ -531,3 +531,5 @@ class PhotoParticleController {
         particleSamplingStep: 3,   // Use fewer particles for a different look
     });
 }); */
+
+export { PhotoParticleController, PhotoParticle };
