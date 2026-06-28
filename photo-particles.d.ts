@@ -7,6 +7,7 @@ export interface PhotoParticleOptions {
     particleBaseRadius?: number;
     particleColor?: (r: number, g: number, b: number) => string;
     showToggle?: boolean;
+    overflowPadding?: number;
 }
 
 export class PhotoParticle {
