@@ -193,6 +193,7 @@ The library only manages functionality - all visual styling is controlled by you
 | `particleBaseRadius`   | Number   | `1.8`                           | The base size of each particle. Size also varies slightly by brightness.    |
 | `particleColor`        | Function | `(r,g,b) => ...`                | A function that returns a CSS color string. Receives `r`, `g`, `b` values.  |
 | `showToggle`           | Boolean  | `true`                          | Whether to show the toggle controls. Set to `false` to hide all toggle elements. |
+| `overflowPadding`      | Number   | `100`                           | The amount of padding (in pixels) added around the canvas to allow particles to flow beyond the circular image boundaries. |
 
 
 ## Notes
