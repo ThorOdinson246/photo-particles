@@ -52,8 +52,7 @@ var PhotoParticles = (() => {
       this.vx += -dx * this.springConstant;
       this.vy += -dy * this.springConstant;
       allParticles.forEach((other) => {
-        if (other === this)
-          return;
+        if (other === this) return;
         const odx = this.x - other.x;
         const ody = this.y - other.y;
         const distance = Math.sqrt(odx * odx + ody * ody);
@@ -218,8 +217,7 @@ var PhotoParticles = (() => {
       });
     }
     createParticles() {
-      if (!this.imageData)
-        return;
+      if (!this.imageData) return;
       this.particles = [];
       const data = this.imageData.data;
       const imageSize = 120;
@@ -238,15 +236,12 @@ var PhotoParticles = (() => {
           const g = data[index + 1];
           const b = data[index + 2];
           const a = data[index + 3];
-          if (a < 50)
-            continue;
+          if (a < 50) continue;
           const relativeX = (x - imageSize / 2) / (imageSize / 2);
           const relativeY = (y - imageSize / 2) / (imageSize / 2);
           const distance = Math.sqrt(relativeX * relativeX + relativeY * relativeY);
-          if (distance > 0.95)
-            continue;
-          if (Math.random() > PARTICLE_RETENTION)
-            continue;
+          if (distance > 0.95) continue;
+          if (Math.random() > PARTICLE_RETENTION) continue;
           const worldX = centerX + relativeX * imageRadius;
           const worldY = centerY + relativeY * imageRadius;
           const brightness = (r + g + b) / 3;
@@ -313,12 +308,9 @@ var PhotoParticles = (() => {
         const toggleSwitch = document.getElementById("toggleSwitch");
         const infoLink2 = document.getElementById("particleInfoLink");
         const toggleLabels = document.querySelectorAll('.toggle-label, label[for="particleToggle"]');
-        if (toggle2)
-          toggle2.style.display = "none";
-        if (toggleSwitch)
-          toggleSwitch.style.display = "none";
-        if (infoLink2)
-          infoLink2.style.display = "none";
+        if (toggle2) toggle2.style.display = "none";
+        if (toggleSwitch) toggleSwitch.style.display = "none";
+        if (infoLink2) infoLink2.style.display = "none";
         toggleLabels.forEach((label) => {
           label.style.display = "none";
         });
