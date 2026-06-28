@@ -123,6 +123,7 @@ class PhotoParticleController {
             particleBaseRadius: 1.8,
             particleColor: (r, g, b) => `rgba(${r}, ${g}, ${b}, 0.95)`,
             showToggle: true, // Show toggle controls by default
+            overflowPadding: 100, // Allow particles to flow beyond image bounds
             // Add any other physics properties from PhotoParticle here if needed
         };
 
@@ -161,34 +162,35 @@ class PhotoParticleController {
     async init() {
         this.originalImage = this.imageContainer.querySelector('img');
         
-        // Create canvas that exactly matches the image position and size
+        // Create canvas that overlaps the image, plus padding
         this.canvas = document.createElement('canvas');
         this.canvas.style.position = 'absolute';
         this.canvas.style.pointerEvents = 'all';
         this.canvas.style.cursor = 'grab';
-        this.canvas.style.borderRadius = '50%'; // Match the circular image
+        // Removed border-radius so particles aren't clipped
         
-        // Position canvas to exactly overlay the image
+        // Position canvas to overlay the image
         this.imageContainer.style.position = 'relative';
+        this.imageContainer.style.overflow = 'visible'; // Ensure container doesn't clip
         this.imageContainer.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         
         // Get image dimensions and position
         const imageRect = this.originalImage.getBoundingClientRect();
-        const containerRect = this.imageContainer.getBoundingClientRect();
         
-        // Set canvas size to exactly match the image
+        // Set canvas size to match the image + padding
         const imageWidth = this.originalImage.offsetWidth;
         const imageHeight = this.originalImage.offsetHeight;
+        const padding = this.options.overflowPadding || 0;
         
-        this.canvas.width = imageWidth;
-        this.canvas.height = imageHeight;
-        this.canvas.style.width = imageWidth + 'px';
-        this.canvas.style.height = imageHeight + 'px';
+        this.canvas.width = imageWidth + padding * 2;
+        this.canvas.height = imageHeight + padding * 2;
+        this.canvas.style.width = (imageWidth + padding * 2) + 'px';
+        this.canvas.style.height = (imageHeight + padding * 2) + 'px';
         
         // Position canvas to exactly overlay the image
-        this.canvas.style.top = '0px';
-        this.canvas.style.left = '0px';
+        this.canvas.style.top = `-${padding}px`;
+        this.canvas.style.left = `-${padding}px`;
         this.canvas.style.zIndex = '2';
         
         try {
@@ -213,14 +215,15 @@ class PhotoParticleController {
     
     handleResize() {
         if (this.canvas && this.originalImage) {
-            // Update canvas size to match image
+            // Update canvas size to match image + padding
             const imageWidth = this.originalImage.offsetWidth;
             const imageHeight = this.originalImage.offsetHeight;
+            const padding = this.options.overflowPadding || 0;
             
-            this.canvas.width = imageWidth;
-            this.canvas.height = imageHeight;
-            this.canvas.style.width = imageWidth + 'px';
-            this.canvas.style.height = imageHeight + 'px';
+            this.canvas.width = imageWidth + padding * 2;
+            this.canvas.height = imageHeight + padding * 2;
+            this.canvas.style.width = (imageWidth + padding * 2) + 'px';
+            this.canvas.style.height = (imageHeight + padding * 2) + 'px';
             
             // Recreate particles with new dimensions
             this.createParticles();
@@ -261,12 +264,14 @@ class PhotoParticleController {
         const data = this.imageData.data;
         const imageSize = 120;
         
-        // Canvas now exactly matches image dimensions
+        // Canvas size includes padding
         const canvasWidth = this.canvas.width;
         const canvasHeight = this.canvas.height;
+        const padding = this.options.overflowPadding || 0;
+        
         const centerX = canvasWidth / 2;
         const centerY = canvasHeight / 2;
-        const imageRadius = Math.min(canvasWidth, canvasHeight) / 2;
+        const imageRadius = Math.min(canvasWidth - padding * 2, canvasHeight - padding * 2) / 2;
         
         // Optimized particle count for performance
         const SAMPLING_STEP = this.options.particleSamplingStep;

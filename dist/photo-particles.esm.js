@@ -92,8 +92,10 @@ var PhotoParticleController = class {
       // Lower is denser
       particleBaseRadius: 1.8,
       particleColor: (r, g, b) => `rgba(${r}, ${g}, ${b}, 0.95)`,
-      showToggle: true
+      showToggle: true,
       // Show toggle controls by default
+      overflowPadding: 100
+      // Allow particles to flow beyond image bounds
       // Add any other physics properties from PhotoParticle here if needed
     };
     this.options = { ...defaultOptions, ...options };
@@ -126,20 +128,20 @@ var PhotoParticleController = class {
     this.canvas.style.position = "absolute";
     this.canvas.style.pointerEvents = "all";
     this.canvas.style.cursor = "grab";
-    this.canvas.style.borderRadius = "50%";
     this.imageContainer.style.position = "relative";
+    this.imageContainer.style.overflow = "visible";
     this.imageContainer.appendChild(this.canvas);
     this.ctx = this.canvas.getContext("2d");
     const imageRect = this.originalImage.getBoundingClientRect();
-    const containerRect = this.imageContainer.getBoundingClientRect();
     const imageWidth = this.originalImage.offsetWidth;
     const imageHeight = this.originalImage.offsetHeight;
-    this.canvas.width = imageWidth;
-    this.canvas.height = imageHeight;
-    this.canvas.style.width = imageWidth + "px";
-    this.canvas.style.height = imageHeight + "px";
-    this.canvas.style.top = "0px";
-    this.canvas.style.left = "0px";
+    const padding = this.options.overflowPadding || 0;
+    this.canvas.width = imageWidth + padding * 2;
+    this.canvas.height = imageHeight + padding * 2;
+    this.canvas.style.width = imageWidth + padding * 2 + "px";
+    this.canvas.style.height = imageHeight + padding * 2 + "px";
+    this.canvas.style.top = `-${padding}px`;
+    this.canvas.style.left = `-${padding}px`;
     this.canvas.style.zIndex = "2";
     try {
       await this.extractImageColors();
@@ -161,10 +163,11 @@ var PhotoParticleController = class {
     if (this.canvas && this.originalImage) {
       const imageWidth = this.originalImage.offsetWidth;
       const imageHeight = this.originalImage.offsetHeight;
-      this.canvas.width = imageWidth;
-      this.canvas.height = imageHeight;
-      this.canvas.style.width = imageWidth + "px";
-      this.canvas.style.height = imageHeight + "px";
+      const padding = this.options.overflowPadding || 0;
+      this.canvas.width = imageWidth + padding * 2;
+      this.canvas.height = imageHeight + padding * 2;
+      this.canvas.style.width = imageWidth + padding * 2 + "px";
+      this.canvas.style.height = imageHeight + padding * 2 + "px";
       this.createParticles();
     }
   }
@@ -198,9 +201,10 @@ var PhotoParticleController = class {
     const imageSize = 120;
     const canvasWidth = this.canvas.width;
     const canvasHeight = this.canvas.height;
+    const padding = this.options.overflowPadding || 0;
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
-    const imageRadius = Math.min(canvasWidth, canvasHeight) / 2;
+    const imageRadius = Math.min(canvasWidth - padding * 2, canvasHeight - padding * 2) / 2;
     const SAMPLING_STEP = this.options.particleSamplingStep;
     const PARTICLE_RETENTION = 1;
     for (let y = 0; y < imageSize; y += SAMPLING_STEP) {
