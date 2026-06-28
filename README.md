@@ -105,7 +105,7 @@ This script is designed to be easy to drop into an existing project.
     When `showToggle: false`, all these elements are automatically hidden.
 ## Demo
 
-![Demo](demo.gif)
+![Demo](https://raw.githubusercontent.com/ThorOdinson246/photo-particles/main/demo.gif)
 
 ## Configuration Options
 
