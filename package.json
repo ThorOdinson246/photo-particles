@@ -1,0 +1,27 @@
+{
+  "name": "photo-particles",
+  "version": "1.0.0",
+  "description": "Images reimagined as interactive particles",
+  "main": "dist/photo-particles.js",
+  "module": "dist/photo-particles.esm.js",
+  "types": "photo-particles.d.ts",
+  "scripts": {
+    "build": "npm run build:iife && npm run build:esm && npm run build:min",
+    "build:iife": "esbuild photo-particles.js --bundle --format=iife --global-name=PhotoParticles --outfile=dist/photo-particles.js",
+    "build:esm": "esbuild photo-particles.js --bundle --format=esm --outfile=dist/photo-particles.esm.js",
+    "build:min": "esbuild photo-particles.js --bundle --format=iife --global-name=PhotoParticles --minify --outfile=dist/photo-particles.min.js"
+  },
+  "keywords": [
+    "particles",
+    "physics",
+    "image",
+    "canvas",
+    "animation",
+    "interactive"
+  ],
+  "author": "ThorOdinson246",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
