@@ -11,15 +11,23 @@ A standalone JavaScript script that transforms a designated image on your webpag
 - **Responsive**: Adjusts the particle canvas and layout for both desktop and mobile views.
 - **Physics-Based Animation**: Particles have properties like friction, springiness, and gentle orbital motion, creating a dynamic and organic feel.
 
-## How to Use
+## Installation
 
-This script is designed to be easy to drop into an existing project.
+You can install `photo-particles` via npm:
 
-1.  **Add the Script to Your Project**
+```bash
+npm install photo-particles
+```
 
-    Place the `photo-particles.js` file somewhere in your project, for example, in an `assets/js/` directory.
+Or you can use it directly in the browser via a CDN like unpkg:
 
-2.  **Set Up Your HTML Structure**
+```html
+<script src="https://unpkg.com/photo-particles/dist/photo-particles.min.js"></script>
+```
+
+## Usage
+
+### 1. Set Up Your HTML Structure
 
     The script needs a container element to hold the particle canvas. By default, it looks for an element with the class `.photo-particles-image`, but you can customize this.
 
@@ -31,26 +39,39 @@ This script is designed to be easy to drop into an existing project.
     </div>
     ```
 
-3.  **Include and Initialize the Script**
+### 2. Initialize the Script
 
-    Add a `<script>` tag to your HTML file to include `photo-particles.js`. In a second script tag, create a new instance of `PhotoParticleController` and pass in your desired options.
+#### Option A: Using ES Modules (npm / Webpack / Vite)
 
-    It's best to place these at the end of your `<body>`.
+If you installed via npm, you can import the controller and use it in your JavaScript:
 
-    ```html
-    <script src="assets/js/photo-particles.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the controller with custom options
-            const photoController = new PhotoParticleController({
-                // You can override the default container selector if needed
-                // containerSelector: '.your-custom-class',
-                imageSrc: 'path/to/your/image.jpg',
-                touchInfluenceRadius: 150,
-            });
+```javascript
+import { PhotoParticleController } from 'photo-particles';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const photoController = new PhotoParticleController({
+        containerSelector: '.photo-particles-image',
+        imageSrc: 'path/to/your/image.jpg',
+        touchInfluenceRadius: 150,
+    });
+});
+```
+
+#### Option B: Using a Script Tag
+
+If you included the script tag directly, the library is available on the global `PhotoParticles` object:
+
+```html
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const photoController = new PhotoParticles.PhotoParticleController({
+            containerSelector: '.photo-particles-image',
+            imageSrc: 'path/to/your/image.jpg',
+            touchInfluenceRadius: 150,
         });
-    </script>
-    ```
+    });
+</script>
+```
 
 4.  **Toggle Controls**
 
