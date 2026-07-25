@@ -43,6 +43,9 @@ export class PhotoParticleController {
     originalImage: HTMLImageElement | null;
     imageData: ImageData | null;
     animationId: number | null;
+    observer: IntersectionObserver | null;
+    resizeHandler: (() => void) | null;
+    visible: boolean;
     isDragging: boolean;
     touchX: number;
     touchY: number;
@@ -50,4 +53,5 @@ export class PhotoParticleController {
     touchMaxForce: number;
 
     constructor(options?: PhotoParticleOptions);
+    destroy(): void;
 }

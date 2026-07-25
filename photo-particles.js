@@ -41,25 +41,7 @@ class PhotoParticle {
         
         this.vx += -dx * this.springConstant;
         this.vy += -dy * this.springConstant;
-        
-        // Reduced particle-to-particle repulsion since particles are larger and fewer
-        allParticles.forEach(other => {
-            if (other === this) return;
-            
-            const odx = this.x - other.x;
-            const ody = this.y - other.y;
-            const distance = Math.sqrt(odx * odx + ody * ody);
-            const minDistance = (this.radius + other.radius) * 1.2; // Closer together for image illusion
-            
-            if (distance < minDistance && distance > 0) {
-                const repulseForce = (minDistance - distance) * 0.008; // Moderate repulsion
-                const angle = Math.atan2(ody, odx);
-                
-                this.vx += Math.cos(angle) * repulseForce;
-                this.vy += Math.sin(angle) * repulseForce;
-            }
-        });
-        
+
         // Update position
         this.x += this.vx;
         this.y += this.vy;
@@ -142,7 +124,10 @@ class PhotoParticleController {
         this.originalImage = null;
         this.imageData = null;
         this.animationId = null;
-        
+        this.observer = null;
+        this.resizeHandler = null;
+        this.visible = true;
+
         // Interaction system - only on click/drag
         this.isDragging = false;
         this.touchX = 0;
@@ -210,7 +195,22 @@ class PhotoParticleController {
         }
         
         // Handle window resize
-        window.addEventListener('resize', () => this.handleResize());
+        this.resizeHandler = () => this.handleResize();
+        window.addEventListener('resize', this.resizeHandler);
+
+        // Pause the animation loop while the image is scrolled out of view
+        this.observer = new IntersectionObserver((entries) => {
+            const nowVisible = entries[0] ? entries[0].isIntersecting : true;
+            if (nowVisible === this.visible) return;
+            this.visible = nowVisible;
+            if (nowVisible && this.particlesEnabled && this.animationId === null) {
+                this.animate();
+            } else if (!nowVisible && this.animationId !== null) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+        }, { threshold: 0 });
+        this.observer.observe(this.imageContainer);
     }
     
     handleResize() {
@@ -452,7 +452,7 @@ class PhotoParticleController {
             // Show particles, hide original image
             this.canvas.style.display = 'block';
             this.originalImage.style.opacity = '0';
-            if (!this.animationId) {
+            if (!this.animationId && this.visible) {
                 this.animate();
             }
         } else {
@@ -472,13 +472,17 @@ class PhotoParticleController {
         // Apply touch force when dragging
         this.applyTouchForce();
         
-        // Update and draw particles with particle-to-particle interaction and boundary bouncing
-        this.particles.forEach(particle => {
-            particle.update(this.particles, this.canvas.width, this.canvas.height);
+        // Update and draw particles with boundary bouncing
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+        for (const particle of this.particles) {
+            particle.update(this.particles, w, h);
             particle.draw(this.ctx);
-        });
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
+        }
+
+        this.animationId = (this.visible && this.particlesEnabled)
+            ? requestAnimationFrame(() => this.animate())
+            : null;
     }
     
     applyTouchForce() {
@@ -517,6 +521,15 @@ class PhotoParticleController {
     destroy() {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        if (this.resizeHandler) {
+            window.removeEventListener('resize', this.resizeHandler);
+            this.resizeHandler = null;
         }
         if (this.canvas) {
             this.canvas.remove();

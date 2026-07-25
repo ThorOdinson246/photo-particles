@@ -1,6 +1,6 @@
 {
   "name": "photo-particles",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Images reimagined as interactive particles",
   "main": "dist/photo-particles.js",
   "module": "dist/photo-particles.esm.js",

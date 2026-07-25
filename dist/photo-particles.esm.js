@@ -27,19 +27,6 @@ var PhotoParticle = class {
     const dy = this.y - orbitY;
     this.vx += -dx * this.springConstant;
     this.vy += -dy * this.springConstant;
-    allParticles.forEach((other) => {
-      if (other === this) return;
-      const odx = this.x - other.x;
-      const ody = this.y - other.y;
-      const distance = Math.sqrt(odx * odx + ody * ody);
-      const minDistance = (this.radius + other.radius) * 1.2;
-      if (distance < minDistance && distance > 0) {
-        const repulseForce = (minDistance - distance) * 8e-3;
-        const angle = Math.atan2(ody, odx);
-        this.vx += Math.cos(angle) * repulseForce;
-        this.vy += Math.sin(angle) * repulseForce;
-      }
-    });
     this.x += this.vx;
     this.y += this.vy;
     if (canvasWidth && canvasHeight) {
@@ -110,6 +97,9 @@ var PhotoParticleController = class {
     this.originalImage = null;
     this.imageData = null;
     this.animationId = null;
+    this.observer = null;
+    this.resizeHandler = null;
+    this.visible = true;
     this.isDragging = false;
     this.touchX = 0;
     this.touchY = 0;
@@ -156,7 +146,20 @@ var PhotoParticleController = class {
     } catch (error) {
       this.canvas.remove();
     }
-    window.addEventListener("resize", () => this.handleResize());
+    this.resizeHandler = () => this.handleResize();
+    window.addEventListener("resize", this.resizeHandler);
+    this.observer = new IntersectionObserver((entries) => {
+      const nowVisible = entries[0] ? entries[0].isIntersecting : true;
+      if (nowVisible === this.visible) return;
+      this.visible = nowVisible;
+      if (nowVisible && this.particlesEnabled && this.animationId === null) {
+        this.animate();
+      } else if (!nowVisible && this.animationId !== null) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
+    }, { threshold: 0 });
+    this.observer.observe(this.imageContainer);
   }
   handleResize() {
     if (this.canvas && this.originalImage) {
@@ -334,7 +337,7 @@ var PhotoParticleController = class {
     if (this.particlesEnabled) {
       this.canvas.style.display = "block";
       this.originalImage.style.opacity = "0";
-      if (!this.animationId) {
+      if (!this.animationId && this.visible) {
         this.animate();
       }
     } else {
@@ -349,11 +352,13 @@ var PhotoParticleController = class {
   animate() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.applyTouchForce();
-    this.particles.forEach((particle) => {
-      particle.update(this.particles, this.canvas.width, this.canvas.height);
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    for (const particle of this.particles) {
+      particle.update(this.particles, w, h);
       particle.draw(this.ctx);
-    });
-    this.animationId = requestAnimationFrame(() => this.animate());
+    }
+    this.animationId = this.visible && this.particlesEnabled ? requestAnimationFrame(() => this.animate()) : null;
   }
   applyTouchForce() {
     if (this.isDragging) {
@@ -382,6 +387,15 @@ var PhotoParticleController = class {
   destroy() {
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    if (this.resizeHandler) {
+      window.removeEventListener("resize", this.resizeHandler);
+      this.resizeHandler = null;
     }
     if (this.canvas) {
       this.canvas.remove();
